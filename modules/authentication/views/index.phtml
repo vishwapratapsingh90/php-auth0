@@ -1,0 +1,59 @@
+<?php
+
+$view ??= 'setup';
+$title ??= match ($view) {
+    'profile' => 'Authenticated Auth0 user',
+    'error' => 'Auth0 error',
+    default => 'Auth0 PHP sample',
+};
+$baseUrl ??= 'http://localhost:3000';
+?>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><a href="<?= escape($baseUrl) ?>"><?= escape($title) ?></a></title>
+</head>
+
+<body>
+    <main style="max-width: 50rem; margin: 3rem auto; font-family: sans-serif; line-height: 1.5; padding: 0 1rem;">
+        <?php if ('setup' === $view): ?>
+            <h1>Auth0 PHP sample</h1>
+            <p>Set the Auth0 environment variables before starting the login flow.</p>
+            <p>See the README for setup instructions.</p>
+        <?php elseif ('login' === $view): ?>
+            <?php
+            $adLink = '' === $adConnection
+                ? '<span>AD connection is not configured</span>'
+                : '<a href="' . escape($baseUrl . '/?action=login&provider=ad') . '">Sign in with AD</a>';
+            $nonAdLink = '' === $nonAdConnection
+                ? '<span>Non-AD connection is not configured</span>'
+                : '<a href="' . escape($baseUrl . '/?action=login&provider=non_ad') . '">Sign in with non-AD</a>';
+            ?>
+            <h1>Auth0 PHP sample</h1>
+            <p>Choose an Auth0 connection:</p>
+            <ul>
+                <li><?= $adLink ?></li>
+                <li><?= $nonAdLink ?></li>
+            </ul>
+        <?php elseif ('error' === $view): ?>
+            <h1><?= escape($title) ?></h1>
+            <p><?= escape($errorMessage ?? 'An unexpected error occurred.') ?></p>
+            <p><a href="<?= escape($baseUrl . '/') ?>">Back</a></p>
+        <?php elseif ('profile' === $view): ?>
+            <?php
+            $name = (string) ($user['name'] ?? $user['nickname'] ?? $user['email'] ?? 'Authenticated user');
+            ?>
+            <h1>Welcome, <?= escape($name) ?></h1>
+            <?php if (isset($user['email'])): ?>
+                <p>Email: <?= escape((string) $user['email']) ?></p>
+            <?php endif; ?>
+            <p>Identity provider: <?= escape((string) ($user['sub'] ?? 'unknown')) ?></p>
+            <p><a href="<?= escape($baseUrl . '/?action=logout') ?>">Sign out</a></p>
+        <?php endif; ?>
+    </main>
+</body>
+
+</html>
