@@ -25,23 +25,33 @@ $baseUrl ??= 'http://localhost:3000';
             <p>See the README for setup instructions.</p>
         <?php elseif ('login' === $view): ?>
             <?php
-            $adLink = '' === $adConnection
-                ? '<span>AD connection is not configured</span>'
-                : '<a href="' . escape($baseUrl . '/?action=login&provider=ad') . '">Sign in with AD</a>';
-            $nonAdLink = '' === $nonAdConnection
-                ? '<span>Non-AD connection is not configured</span>'
-                : '<a href="' . escape($baseUrl . '/?action=login&provider=non_ad') . '">Sign in with non-AD</a>';
+            $connections = [
+                ['provider' => 'ad', 'name' => 'AD', 'connection' => $adConnection],
+                ['provider' => 'non_ad', 'name' => 'non-AD', 'connection' => $nonAdConnection],
+                ['provider' => 'organization', 'name' => 'organization', 'connection' => $organization],
+                ['provider' => 'default', 'name' => '', 'connection' => null],
+            ];
             ?>
             <h1>Auth0 PHP sample</h1>
             <p>Choose an Auth0 connection:</p>
             <ul>
-                <li><?= $adLink ?></li>
-                <li><?= $nonAdLink ?></li>
+                <?php foreach ($connections as $connection): ?>
+                    <li>
+                        <?php if ('default' === $connection['provider']): ?>
+                            <a href="<?= escape($baseUrl . '/?action=login') ?>">Sign in</a>
+                        <?php elseif ('' === $connection['connection']): ?>
+                            <span><?= escape($connection['name']) ?> connection is not configured</span>
+                        <?php else: ?>
+                            <a href="<?= escape($baseUrl . '/?action=login&provider=' . $connection['provider']) ?>">
+                                Sign in with <?= escape($connection['name']) ?>
+                            </a>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
             </ul>
         <?php elseif ('error' === $view): ?>
             <h1><?= escape($title) ?></h1>
             <p><?= escape($errorMessage ?? 'An unexpected error occurred.') ?></p>
-            <p><a href="<?= escape($baseUrl . '/') ?>">Back</a></p>
         <?php elseif ('profile' === $view): ?>
             <?php
             $name = (string) ($user['name'] ?? $user['nickname'] ?? $user['email'] ?? 'Authenticated user');

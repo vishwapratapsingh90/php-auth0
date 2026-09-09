@@ -1,9 +1,12 @@
 services:
   app:
-    image: php:8.4-cli
+    build:
+      context: .
+      dockerfile: Dockerfile
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
+      - vendor:/var/www/html/vendor
     environment:
       APP_ENV: ${APP_ENV:-local}
       APP_DEBUG: ${APP_DEBUG:-false}
@@ -17,3 +20,6 @@ services:
     ports:
       - "3000:3000"
     command: php -S 0.0.0.0:3000 -t /var/www/html /var/www/html/index.php
+
+volumes:
+  vendor:
